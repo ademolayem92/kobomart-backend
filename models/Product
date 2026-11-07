@@ -1,0 +1,36 @@
+const mongoose = require('mongoose');
+
+const VariantSchema = new mongoose.Schema({
+  size: String,
+  colour: String,
+  price_kobo: { type: Number, required: true },
+  stock: { type: Number, required: true, default: 0 }
+});
+
+const ReviewSchema = new mongoose.Schema({
+  buyerId: { type: String, required: true },
+  rating: { type: Number, required: true, min: 1, max: 5 },
+  comment: String,
+  createdAt: { type: Date, default: Date.now }
+}, { _id: true });
+
+const ProductSchema = new mongoose.Schema({
+  name: { type: String, required: true, trim: true },
+  slug: { type: String, required: true, unique: true },
+  description: { type: String, required: true },
+  price_kobo: { type: Number, required: true },
+  category: { type: String, required: true, index: true },
+  images: [String],
+  vendorId: { type: String, required: true, index: true },
+  stockQuantity: { type: Number, required: true, default: 0 },
+  variants: [VariantSchema],
+  tags: [String],
+  isActive: { type: Boolean, default: true },
+  avgRating: { type: Number, default: 0 },
+  reviewCount: { type: Number, default: 0 },
+  reviews: [ReviewSchema]
+}, { timestamps: true });
+
+ProductSchema.index({ name: 'text', description: 'text' });
+
+module.exports = mongoose.model('Product', ProductSchema);

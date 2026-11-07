@@ -1,0 +1,42 @@
+const express = require('express');
+const router = express.Router();
+
+const authMiddleware = require('../middleware/auth');
+const authController = require('../controllers/authController');
+const productController = require('../controllers/productController');
+const cartController = require('../controllers/cartController');
+const checkoutController = require('../controllers/checkoutController');
+const webhookController = require('../controllers/webhookController');
+const disputeController = require('../controllers/disputeController');
+const payoutController = require('../controllers/payoutController');
+
+// Module A — Identity Router Links
+router.post('/auth/register', authController.register);
+router.post('/auth/verify-email', authController.verifyEmail);
+router.post('/auth/login', authController.login);
+router.post('/auth/refresh', authController.refresh);
+router.post('/auth/logout', authMiddleware(), authController.logout);
+
+// Module B — Inventory Catalogue Router Links
+router.post('/products', authMiddleware(['Vendor']), productController.createProduct);
+router.get('/products', productController.searchProducts);
+router.post('/products/:id/reviews', authMiddleware(['Buyer']), productController.addReview);
+
+// Module C — Cart Management Operations
+router.get('/cart', authMiddleware(['Buyer']), cartController.getCart);
+router.post('/cart/items', authMiddleware(['Buyer']), cartController.addItem);
+
+// Module D & F — Processing Checkout Pipelines
+router.post('/orders/checkout', authMiddleware(['Buyer']), checkoutController.processCheckout);
+
+// Module E — Funding Channels / Verification Gateways
+router.post('/webhooks/paystack', webhookController.handlePaystackWebhook);
+
+// Module G — Administrative & Buyer Arbitrations
+router.post('/sub-orders/:subOrderId/disputes', authMiddleware(['Buyer']), disputeController.openDispute);
+router.patch('/disputes/:id/resolve', authMiddleware(['Admin']), disputeController.resolveDispute);
+
+// Module H — Storefront Liquidation Actions
+router.post('/payouts', authMiddleware(['Vendor']), payoutController.requestPayout);
+
+module.exports = router;
