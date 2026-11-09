@@ -1,4 +1,4 @@
--- KoboMarket Core Ledger Schema (PostgreSQL)
+-- Kobomart Core Ledger Schema (PostgreSQL)
 -- All financial data represented exclusively in Kobo (Integers)
 
 CREATE TABLE IF NOT EXISTS accounts (

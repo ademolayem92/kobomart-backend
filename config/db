@@ -1,0 +1,41 @@
+const { Pool } = require('pg');
+require('dotenv').config(); // Ensures environment variables from your .env file are loaded
+
+// Define configuration options using standard environment variables
+const poolConfig = {
+  user: process.env.DB_USER || 'postgres',
+  host: process.env.DB_HOST || 'localhost',
+  database: process.env.DB_NAME || 'kobomart',
+  password: process.env.DB_PASSWORD,
+  port: parseInt(process.env.DB_PORT || '5432', 10),
+  // Performance and resource scaling optimizations
+  max: 20, // Maximum number of clients in the pool
+  idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
+  connectionTimeoutMillis: 2000, // Return an error if a connection takes longer than 2 seconds
+};
+
+// Initialize the database connection pool
+const pool = new Pool(poolConfig);
+
+// Log pool errors to prevent application crashes from background disconnection events
+pool.on('error', (err, client) => {
+  console.error('Unexpected error on idle PostgreSQL client:', err.message);
+});
+
+// Optional utility to verify the connection pool status on backend startup
+const testConnection = async () => {
+  try {
+    const res = await pool.query('SELECT NOW()');
+    console.log(`Successfully connected to PostgreSQL at: ${res.rows[0].now}`);
+  } catch (err) {
+    console.error('Failed to connect to PostgreSQL database:', err.stack);
+  }
+};
+
+// Execute connection test on initialization
+testConnection();
+
+// Export the pool instance so controllers can destructure it via: const { pool } = require('./config/db');
+module.exports = {
+  pool
+};

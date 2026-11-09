@@ -25,6 +25,8 @@ router.post('/products/:id/reviews', authMiddleware(['Buyer']), productControlle
 // Module C — Cart Management Operations
 router.get('/cart', authMiddleware(['Buyer']), cartController.getCart);
 router.post('/cart/items', authMiddleware(['Buyer']), cartController.addItem);
+router.patch('/cart/items', authMiddleware(['Buyer']), cartController.updateItemQuantity);
+router.delete('/cart/items', authMiddleware(['Buyer']), cartController.removeItem)
 
 // Module D & F — Processing Checkout Pipelines
 router.post('/orders/checkout', authMiddleware(['Buyer']), checkoutController.processCheckout);
