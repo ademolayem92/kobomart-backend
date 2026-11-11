@@ -1,3 +1,7 @@
+const crypto = require('crypto'); 
+
+
+
 const disputeController = {
   openDispute: async (req, res) => {
     const pgClient = await req.pgPool.connect();
@@ -67,9 +71,12 @@ const disputeController = {
       const vendorAcc = (await pgClient.query("SELECT id FROM accounts WHERE owner_type = 'vendor' AND owner_id = $1", [subOrder.vendor_id])).rows[0];
       const revenueAcc = (await pgClient.query("SELECT id FROM accounts WHERE owner_type = 'system' AND owner_id = 'PLATFORM_REVENUE'")).rows[0];
 
+
+      const reference = `DISP_${id}_${crypto.randomUUID().slice(0, 12)}`;
+      
       const txRes = await pgClient.query(
         "INSERT INTO transactions (reference, type, status, idempotency_key) VALUES ($1, 'dispute_resolution', 'success', $2) RETURNING id",
-        [`TX_DISP_${id}_${Date.now()}`, `IDEM_DISP_${id}`]
+        [reference, `IDEM_DISP_${id}`]
       );
       const transactionId = txRes.rows[0].id;
 

@@ -1,5 +1,6 @@
 const Product = require('../models/Product');
 const Cart = require('../models/Cart');
+const crypto = require('crypto'); 
 
 const checkoutController = {
   processCheckout: async (req, res) => {
@@ -75,12 +76,15 @@ const checkoutController = {
       const escrowAccountRes = await pgClient.query("SELECT id FROM accounts WHERE owner_type = 'system' AND owner_id = 'PLATFORM_ESCROW'");
       const escrowAccount = escrowAccountRes.rows[0];
 
-      // Formulate transactional tracking events inside the ledger matrix
+      // Formulate sustainable transactional tracking events inside the ledger matrix
+      const reference = `TX_${crypto.randomUUID().slice(0, 12)}`;
+
       const txRes = await pgClient.query(
         "INSERT INTO transactions (reference, type, status, idempotency_key) VALUES ($1, $2, 'success', $3) RETURNING id",
-        [`TX_ORDER_${Date.now()}`, 'checkout', idempotencyKey]
+        [reference, 'checkout', idempotencyKey]
       );
-      const transactionId = txRes.id;
+
+      const transactionId = txRes.rows[0].id;
 
       // Double entry balance reduction
       await pgClient.query('INSERT INTO ledger_entries (transaction_id, account_id, direction, amount_kobo) VALUES ($1, $2, $3, $4)',

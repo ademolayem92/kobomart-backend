@@ -1,3 +1,5 @@
+const crypto = require('crypto'); 
+
 const payoutController = {
   requestPayout: async (req, res) => {
     const pgClient = await req.pgPool.connect();
@@ -29,7 +31,7 @@ const payoutController = {
       const clearingAccountRes = await pgClient.query("SELECT id FROM accounts WHERE owner_type = 'system' AND owner_id = 'PLATFORM_PAYOUT_CLEARING'");
       const clearingAccount = clearingAccountRes.rows[0];
 
-      const reference = `PAYOUT_${Date.now()}`;
+      const reference = `PAYT_${crypto.randomUUID().slice(0, 12)}`;
       const txRes = await pgClient.query(
         "INSERT INTO transactions (reference, type, status, idempotency_key) VALUES ($1, 'payout', 'pending', $2) RETURNING id",
         [reference, `IDEM_${reference}`]
