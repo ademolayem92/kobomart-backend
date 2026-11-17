@@ -43,6 +43,7 @@ const ProductSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true,
+    enum: ['Kobo', 'NGN', 'USD'],
     default: 'Kobo' // e.g., 'USD', 'NGN'
   },
   category: { type: String, required: true, index: true },
