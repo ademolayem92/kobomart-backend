@@ -2,13 +2,21 @@ const mongoose = require('mongoose');
 
 const CartItemSchema = new mongoose.Schema({
   productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
-  variantId: mongoose.Schema.Types.ObjectId,
+  variantId: {
+    type: mongoose.Schema.Types.ObjectId,
+    default: null // Optional: only populated if the product has variants
+  },
   quantity: { type: Number, required: true, min: 1 },
   addedAt: { type: Date, default: Date.now }
 });
 
 const CartSchema = new mongoose.Schema({
-  buyerId: { type: String, required: true, unique: true },
+  buyerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Cart',
+    required: true,
+    unique: true
+  },
   items: [CartItemSchema]
 }, { timestamps: true });
 

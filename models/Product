@@ -3,14 +3,26 @@ const mongoose = require('mongoose');
 const VariantSchema = new mongoose.Schema({
   size: String,
   colour: String,
-  price_kobo: { type: Number, required: true },
+  price_kobo: {
+    type: Number,
+    required: true,
+    min: 0,
+    validate: {
+      validator: Number.isInteger,
+      message: '{VALUE} must be a whole integer in kobo.'
+    }
+  },
   stock: { type: Number, required: true, default: 0 }
 });
 
 const ReviewSchema = new mongoose.Schema({
   buyerId: { type: String, required: true },
   rating: { type: Number, required: true, min: 1, max: 5 },
-  comment: String,
+  comment: {
+    type: String,
+    trim: true,
+    maxlength: 1000 // Optional: change limit to fit your UI
+  },
   createdAt: { type: Date, default: Date.now }
 }, { _id: true });
 
@@ -18,7 +30,21 @@ const ProductSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
   slug: { type: String, required: true, unique: true },
   description: { type: String, required: true },
-  price_kobo: { type: Number, required: true },
+  price_kobo: {
+    type: Number,
+    required: true,
+    min: 0,
+    validate: {
+      validator: Number.isInteger,
+      message: '{VALUE} must be a whole integer in kobo.'
+    }
+  },
+  currencyUnit: {
+    type: String,
+    required: true,
+    trim: true,
+    default: 'Kobo' // e.g., 'USD', 'NGN'
+  },
   category: { type: String, required: true, index: true },
   images: [String],
   vendorId: { type: String, required: true, index: true },
