@@ -13,7 +13,7 @@ const CartItemSchema = new mongoose.Schema({
 const CartSchema = new mongoose.Schema({
   buyerId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Cart',
+    ref: 'User',
     required: true,
     unique: true
   },
